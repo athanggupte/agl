@@ -1,4 +1,4 @@
-#include "../agl_gfx.h"
+#include "agl_gfx.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -22,7 +22,7 @@ void update(agl_gfx_context_t context, agl_gfx_time_t deltaTime) {
 	agl_float2 size = {200.f / cw, 200.f / ch};
 	agl_gfx_draw_screen_quad(canvas, pos, size, RADIANS(angle), 0xFFFFFFFF, image);
 
-	agl_float4 rot = {sinf(RADIANS(angle / 2.0f)), 0, 0, cosf(RADIANS(angle / 2.0f))};
+	agl_float4 rot = {0, 0, sinf(RADIANS(angle / 2.0f)), cosf(RADIANS(angle / 2.0f))};
 	agl_gfx_draw_mesh(canvas, cube, (agl_float3){0.f, 0.f, -5.f}, rot, 1.0f, (agl_float4){1.f, 1.f, 1.f, 1.f});
 
 	agl_gfx_draw_text(canvas, (agl_float2){ 0, 0 }, 0.05, 0xFFFFFFFF, "agl_gfx");
@@ -142,4 +142,4 @@ int main() {
 
 #define AGL_GFX_IMPLEMENTATION
 #define AGL_GFX_ENABLE_ASSERTS 1
-#include "../agl_gfx.h"
+#include "agl_gfx.h"

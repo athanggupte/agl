@@ -1540,7 +1540,7 @@ static const char *quad_shader_source_vert = "#version 450 core""\n"
         "float c = cos(quad.angle);"
         "float aspect = screen.y / screen.x;"
         "vec2 scl = quad.size;"
-        "mat2 rot = mat2(vec2(c, s), vec2(-s, c));"
+        "mat2 rot = mat2(vec2(c, -s), vec2(s, c));"
         "vec2 position = ((vertices[vertIdx] * scl) * rot + quad.pos) * vec2(aspect, 1.0);"
         "gl_Position = vec4(position, 0.0, 1.0);"
         "vs_out.flags = quad.flags;"
@@ -2163,15 +2163,15 @@ static void agl__MakePerspectiveMatrix(agl_float4 mat[4], agl_float aspect, agl_
 static void agl__MakeTransformMatrix(agl_float4 mat[4], const agl_float3 pos, const agl_float4 quat, const float scale) {
     memset(mat, 0, sizeof(agl_float4[4]));
     agl_float q0 = quat[3], q1 = quat[0], q2 = quat[1], q3 = quat[2];
-    mat[0][0] = (2 * (q0*q0 + q1*q1) - 1) * scale;
-    mat[1][1] = (2 * (q0*q0 + q2*q2) - 1) * scale;
-    mat[2][2] = (2 * (q0*q0 + q3*q3) - 1) * scale;
-    mat[1][0] = 2 * (q1*q2 - q0*q3);
-    mat[0][1] = 2 * (q1*q2 + q0*q3);
-    mat[2][1] = 2 * (q2*q3 - q0*q1);
-    mat[1][2] = 2 * (q2*q3 + q0*q1);
-    mat[0][2] = 2 * (q1*q3 - q0*q2);
-    mat[2][0] = 2 * (q1*q3 + q0*q2);
+    mat[0][0] = 1 - 2*q2*q2 - 2*q3*q3;
+	mat[1][0] = 2*q1*q2 - 2*q0*q3;
+	mat[2][0] = 2*q1*q3 + 2*q0*q2;
+	mat[0][1] = 2*q1*q2 + 2*q0*q3;
+	mat[1][1] = 1 - 2*q1*q1 - 2*q3*q3;
+	mat[2][1] = 2*q2*q3 - 2*q0*q1;
+	mat[0][2] = 2*q1*q3 - 2*q0*q2;
+	mat[1][2] = 2*q2*q3 + 2*q0*q1;
+	mat[2][2] = 1 - 2*q1*q1 - 2*q2*q2;
     for (int i = 0; i < 3; i++) {
         mat[3][i] = pos[i];
     }

@@ -134,13 +134,6 @@ typedef struct agl_gfx_mesh_params_t {
     agl_uint *indexData;
 } agl_gfx_mesh_params_t;
 
-typedef struct agl_gfx_mesh_buffer_info_t {
-    agl_uint PositionStart;
-    agl_uint UVStart;
-    agl_uint NormalStart;
-    agl_uint ColorStart;
-} agl_gfx_mesh_buffer_info_t;
-
 typedef enum agl_gfx_key_t {
     AGL_GFX_KEY_NONE,
     AGL_GFX_KEY_SPACE,
@@ -804,6 +797,13 @@ typedef struct agl__gfx_canvas_t {
     agl_gfx_mesh_t activeMesh;
     // agl_gfx_material_t activeMaterial;
 } agl__gfx_canvas_t;
+
+typedef struct agl__gfx_mesh_buffer_info_t {
+    agl_uint PositionStart;
+    agl_uint UVStart;
+    agl_uint NormalStart;
+    agl_uint ColorStart;
+} agl__gfx_mesh_buffer_info_t;
 
 typedef enum agl__fontglyph_t {
     AGL_FONT_GLYPH_SPACE,
@@ -1928,12 +1928,12 @@ agl_gfx_mesh_t agl_gfx_create_mesh(agl_gfx_context_t context, const agl_gfx_mesh
     if (!mesh)
         return AGL_GFX_INVALID_ID;
     agl_gfx_buffer_params_t bufferParams;
-    agl_uint maxBufSize = sizeof(agl_gfx_mesh_buffer_info_t)
+    agl_uint maxBufSize = sizeof(agl__gfx_mesh_buffer_info_t)
                       + sizeof(agl_float3) * params->vertexCount /* position */
                       + sizeof(agl_float2) * params->vertexCount /* uv       */
                       + sizeof(agl_float3) * params->vertexCount /* normal   */
                       + sizeof(agl_float4) * params->vertexCount /* color    */;
-    agl_gfx_mesh_buffer_info_t * const bufferInfo = (agl_gfx_mesh_buffer_info_t*)agl__ScratchAlloc(&context->scratchAllocator, maxBufSize);
+    agl__gfx_mesh_buffer_info_t * const bufferInfo = (agl__gfx_mesh_buffer_info_t*)agl__ScratchAlloc(&context->scratchAllocator, maxBufSize);
     agl_float * const data = (agl_float*)(bufferInfo + 1);
     agl_uint offset = 0;
     // Positions

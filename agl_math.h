@@ -31,6 +31,26 @@
 #ifndef AGL_MATH_H
 #define AGL_MATH_H
 
+#ifndef	AGL_API
+#	if defined(_WIN32) && defined(AGL_SHARED_LIBRARY)
+#		if defined(AGL_BUILD_DLL) && !defined(AGL_PLUGIN_CLIENT)
+#			define AGL_API __declspec(dllexport)
+#		else
+#			define AGL_API __declspec(dllimport)
+#		endif
+#	else
+#		define AGL_API extern
+#	endif
+#endif // AGL_API
+
+#ifndef AGL_INLINE
+# 	if !defined(AGL_SHARED_LIBRARY)
+# 		define AGL_INLINE inline
+#	else
+#		define AGL_INLINE AGL_API
+# 	endif
+#endif // AGL_INLINE
+
 #include <immintrin.h>
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -58,7 +78,7 @@
 #define VEC4_FMT FLOAT_FMT ", " FLOAT_FMT ", " FLOAT_FMT ", " FLOAT_FMT
 #define VEC4_ARG(v) (v)._m[0], (v)._m[1], (v)._m[2], (v)._m[3]
 
-inline bool float_eq(float a, float b, float eps) {
+AGL_INLINE bool float_eq(float a, float b, float eps) {
     float diff = fabsf(a - b);
     if (diff < eps)
         return true;
@@ -68,11 +88,11 @@ inline bool float_eq(float a, float b, float eps) {
     return (diff <= largest * eps);
 }
 
-inline void swapf(float *a, float *b) {
+AGL_INLINE void swapf(float *a, float *b) {
     float tmp; tmp = *a; *a = *b; *b = tmp;
 }
 
-inline float clampf(float f, float fmin, float fmax) {
+AGL_INLINE float clampf(float f, float fmin, float fmax) {
     float r = min(f, fmax);
     r = max(r, fmin);
     return r;
@@ -93,87 +113,87 @@ struct mat3f_t { alignas(16) float _m[4][3]; };
 #define quatf(x,y,z,w)  ((quatf_t){(x),(y),(z),(w)})
 #define mat3f(m00,m01,m02,m10,m11,m12,m20,m21,m22) ((mat3f_t){{{(m00),(m01),(m02)},{(m10),(m11),(m12)},{(m20),(m21),(m22)}}})
 
-inline void vec3f_scale(vec3f_t *v, float s) {
+AGL_INLINE void vec3f_scale(vec3f_t *v, float s) {
     v->_m[0] *= s;
     v->_m[1] *= s;
     v->_m[2] *= s;
 }
 
-inline void vec3f_add(vec3f_t *v, const vec3f_t *b) {
+AGL_INLINE void vec3f_add(vec3f_t *v, const vec3f_t *b) {
     v->_m[0] += b->_m[0];
     v->_m[1] += b->_m[1];
     v->_m[2] += b->_m[2];
 }
 
-inline void vec3f_addscaled(vec3f_t *v, const vec3f_t *b, float s) {
+AGL_INLINE void vec3f_addscaled(vec3f_t *v, const vec3f_t *b, float s) {
     v->_m[0] += s * b->_m[0];
     v->_m[1] += s * b->_m[1];
     v->_m[2] += s * b->_m[2];
 }
 
-inline void vec3f_sub(vec3f_t *v, const vec3f_t *b) {
+AGL_INLINE void vec3f_sub(vec3f_t *v, const vec3f_t *b) {
     v->_m[0] -= b->_m[0];
     v->_m[1] -= b->_m[1];
     v->_m[2] -= b->_m[2];
 }
 
-inline void vec3f_mul(vec3f_t *v, const vec3f_t *b) {
+AGL_INLINE void vec3f_mul(vec3f_t *v, const vec3f_t *b) {
     v->_m[0] *= b->_m[0];
     v->_m[1] *= b->_m[1];
     v->_m[2] *= b->_m[2];
 }
 
-inline void vec3f_div(vec3f_t *v, const vec3f_t *b) {
-    agl_vm_assert(b->_m[0] != 0 && b->_m[1] != 0 && b->_m[2] != 0);
+AGL_INLINE void vec3f_div(vec3f_t *v, const vec3f_t *b) {
+    agl_math_assert(b->_m[0] != 0 && b->_m[1] != 0 && b->_m[2] != 0);
     v->_m[0] /= b->_m[0];
     v->_m[1] /= b->_m[1];
     v->_m[2] /= b->_m[2];
 }
 
-inline void vec3f_add2(vec3f_t *v, const vec3f_t *a, const vec3f_t *b) {
+AGL_INLINE void vec3f_add2(vec3f_t *v, const vec3f_t *a, const vec3f_t *b) {
     v->_m[0] = a->_m[0] + b->_m[0];
     v->_m[1] = a->_m[1] + b->_m[1];
     v->_m[2] = a->_m[2] + b->_m[2];
 }
 
-inline void vec3f_sub2(vec3f_t *v, const vec3f_t *a, const vec3f_t *b) {
+AGL_INLINE void vec3f_sub2(vec3f_t *v, const vec3f_t *a, const vec3f_t *b) {
     v->_m[0] = a->_m[0] - b->_m[0];
     v->_m[1] = a->_m[1] - b->_m[1];
     v->_m[2] = a->_m[2] - b->_m[2];
 }
 
-inline void vec3f_mul2(vec3f_t *v, const vec3f_t *a, const vec3f_t *b) {
+AGL_INLINE void vec3f_mul2(vec3f_t *v, const vec3f_t *a, const vec3f_t *b) {
     v->_m[0] = a->_m[0] * b->_m[0];
     v->_m[1] = a->_m[1] * b->_m[1];
     v->_m[2] = a->_m[2] * b->_m[2];
 }
 
-inline void vec3f_div2(vec3f_t *v, const vec3f_t *a, const vec3f_t *b) {
-    agl_vm_assert(b->_m[0] != 0 && b->_m[1] != 0 && b->_m[2] != 0);
+AGL_INLINE void vec3f_div2(vec3f_t *v, const vec3f_t *a, const vec3f_t *b) {
+    agl_math_assert(b->_m[0] != 0 && b->_m[1] != 0 && b->_m[2] != 0);
     v->_m[0] = a->_m[0] / b->_m[0];
     v->_m[1] = a->_m[1] / b->_m[1];
     v->_m[2] = a->_m[2] / b->_m[2];
 }
 
-inline float vec3f_dot(const vec3f_t *a, const vec3f_t *b) {
+AGL_INLINE float vec3f_dot(const vec3f_t *a, const vec3f_t *b) {
     return a->_m[0] * b->_m[0]
          + a->_m[1] * b->_m[1]
          + a->_m[2] * b->_m[2];
 }
 
-inline float vec3f_sqrlen(const vec3f_t *v) {
+AGL_INLINE float vec3f_sqrlen(const vec3f_t *v) {
     return vec3f_dot(v, v);
 }
 
-inline float vec3f_len(const vec3f_t *v) {
+AGL_INLINE float vec3f_len(const vec3f_t *v) {
     return sqrtf(vec3f_sqrlen(v));
 }
 
-inline void vec3f_normalize(vec3f_t *v) {
+AGL_INLINE void vec3f_normalize(vec3f_t *v) {
     vec3f_scale(v, 1/vec3f_len(v));
 }
 
-inline void vec3f_cross(vec3f_t *v, const vec3f_t *a, const vec3f_t *b) {
+AGL_INLINE void vec3f_cross(vec3f_t *v, const vec3f_t *a, const vec3f_t *b) {
 	float ax= a->_m[0], ay = a->_m[1], az = a->_m[2];
 	float bx= b->_m[0], by = b->_m[1], bz = b->_m[2];
     v->_m[0] = ay * bz - az * by;
@@ -181,13 +201,13 @@ inline void vec3f_cross(vec3f_t *v, const vec3f_t *a, const vec3f_t *b) {
     v->_m[2] = ax * by - ay * bx;
 }
 
-inline void vec3f_recip(vec3f_t *vr, const vec3f_t *v) {
+AGL_INLINE void vec3f_recip(vec3f_t *vr, const vec3f_t *v) {
     vr->_m[0] = 1.f / v->_m[0];
     vr->_m[1] = 1.f / v->_m[1];
     vr->_m[2] = 1.f / v->_m[2];
 }
 
-inline vec3f_t vec3f_urand() {
+AGL_INLINE vec3f_t vec3f_urand() {
     const float RAND_MAX_F = (float)RAND_MAX;
     return (vec3f_t) {
         ((float)rand()) / RAND_MAX_F,
@@ -196,7 +216,7 @@ inline vec3f_t vec3f_urand() {
     };
 }
 
-inline vec3f_t vec3f_srand() {
+AGL_INLINE vec3f_t vec3f_srand() {
     const float RAND_MAX_F = (float)RAND_MAX;
     return (vec3f_t) {
         ((float)rand()) / RAND_MAX_F * 2.f - 1.f,
@@ -205,34 +225,34 @@ inline vec3f_t vec3f_srand() {
     };
 }
 
-inline void quatf_inv(quatf_t *q) {
+AGL_INLINE void quatf_inv(quatf_t *q) {
     q->_m[0] = -q->_m[0];
     q->_m[1] = -q->_m[1];
     q->_m[2] = -q->_m[2];
 }
 
-inline void quatf_add(quatf_t *q, const quatf_t *b) {
+AGL_INLINE void quatf_add(quatf_t *q, const quatf_t *b) {
 	q->_m[0] += b->_m[0];
 	q->_m[1] += b->_m[1];
 	q->_m[2] += b->_m[2];
 	q->_m[3] += b->_m[3];
 }
 
-inline void quatf_addscaled(quatf_t *q, const quatf_t *b, float s) {
+AGL_INLINE void quatf_addscaled(quatf_t *q, const quatf_t *b, float s) {
     q->_m[0] += s * b->_m[0];
     q->_m[1] += s * b->_m[1];
     q->_m[2] += s * b->_m[2];
     q->_m[3] += s * b->_m[3];
 }
 
-inline void quatf_sub(quatf_t *q, const quatf_t *b) {
+AGL_INLINE void quatf_sub(quatf_t *q, const quatf_t *b) {
 	q->_m[0] -= b->_m[0];
 	q->_m[1] -= b->_m[1];
 	q->_m[2] -= b->_m[2];
 	q->_m[3] -= b->_m[3];
 }
 
-inline void quatf_mul2(quatf_t *q, const quatf_t *a, const quatf_t *b) {
+AGL_INLINE void quatf_mul2(quatf_t *q, const quatf_t *a, const quatf_t *b) {
     float x1 = a->_m[0], y1 = a->_m[1], z1 = a->_m[2], w1 = a->_m[3];
     float x2 = b->_m[0], y2 = b->_m[1], z2 = b->_m[2], w2 = b->_m[3];
     q->_m[3] = w1*w2 - x1*x2 - y1*y2 - z1*z2;
@@ -241,16 +261,16 @@ inline void quatf_mul2(quatf_t *q, const quatf_t *a, const quatf_t *b) {
     q->_m[2] = w1*z2 + x1*y2 - y1*x2 + z1*w2;
 }
 
-inline float quatf_sqrlen(const quatf_t *q) {
+AGL_INLINE float quatf_sqrlen(const quatf_t *q) {
     float x = q->_m[0], y = q->_m[1], z = q->_m[2], w = q->_m[3];
     return x*x + y*y + z*z + w*w;
 }
 
-inline float quatf_len(const quatf_t *q) {
+AGL_INLINE float quatf_len(const quatf_t *q) {
     return sqrtf(quatf_sqrlen(q));
 }
 
-inline void quatf_normalize(quatf_t *q) {
+AGL_INLINE void quatf_normalize(quatf_t *q) {
     float norm = quatf_len(q);
     q->_m[0] /= norm;
     q->_m[1] /= norm;
@@ -258,7 +278,7 @@ inline void quatf_normalize(quatf_t *q) {
     q->_m[3] /= norm;
 }
 
-inline void quatf_apply(vec3f_t *r, const quatf_t *q, const vec3f_t *v) {
+AGL_INLINE void quatf_apply(vec3f_t *r, const quatf_t *q, const vec3f_t *v) {
     agl_math_assert(float_eq(quatf_sqrlen(q), 1.f, 1e-6f));
 	quatf_t qv = quatf(v->_m[0], v->_m[1], v->_m[2], 0.f);
 	quatf_t qinv = *q;
@@ -268,7 +288,7 @@ inline void quatf_apply(vec3f_t *r, const quatf_t *q, const vec3f_t *v) {
 	quatf_mul2((quatf_t*)r, &tmp, &qinv);
 }
 
-inline void quatf_applyinv(vec3f_t *r, const quatf_t *q, const vec3f_t *v) {
+AGL_INLINE void quatf_applyinv(vec3f_t *r, const quatf_t *q, const vec3f_t *v) {
     agl_math_assert(float_eq(quatf_sqrlen(q), 1.f, 1e-6f));
     quatf_t qv = quatf(v->_m[0], v->_m[1], v->_m[2], 0.f);
 	quatf_t qinv = *q;
@@ -278,7 +298,7 @@ inline void quatf_applyinv(vec3f_t *r, const quatf_t *q, const vec3f_t *v) {
 	quatf_mul2((quatf_t*)r, &tmp, q);
 }
 
-inline void quatf_fromaxisangle(quatf_t *q, const vec3f_t *axis, float angle) {
+AGL_INLINE void quatf_fromaxisangle(quatf_t *q, const vec3f_t *axis, float angle) {
     float s = sinf(angle * 0.5f);
     float c = cosf(angle * 0.5f);
     q->_m[3] = c;
@@ -288,7 +308,7 @@ inline void quatf_fromaxisangle(quatf_t *q, const vec3f_t *axis, float angle) {
     quatf_normalize(q);
 }
 
-inline void quatf_fromvectors(quatf_t *q, const vec3f_t *a, const vec3f_t *b) {
+AGL_INLINE void quatf_fromvectors(quatf_t *q, const vec3f_t *a, const vec3f_t *b) {
     vec3f_t u = *a;
     vec3f_t v = *b;
     vec3f_normalize(&u);
@@ -311,7 +331,7 @@ inline void quatf_fromvectors(quatf_t *q, const vec3f_t *a, const vec3f_t *b) {
     quatf_fromaxisangle(q, &axis, theta);
 }
 
-inline void mat3f_fromquat(mat3f_t *m, const quatf_t *q) {
+AGL_INLINE void mat3f_fromquat(mat3f_t *m, const quatf_t *q) {
     *m = (mat3f_t){0};
     float q0 = q->_m[3], q1 = q->_m[0], q2 = q->_m[1], q3 = q->_m[2];
     m->_m[0][0] = 1 - 2*q2*q2 - 2*q3*q3;
@@ -325,14 +345,14 @@ inline void mat3f_fromquat(mat3f_t *m, const quatf_t *q) {
 	m->_m[2][2] = 1 - 2*q1*q1 - 2*q2*q2;
 }
 
-inline void mat3f_fromdiag(mat3f_t *m, const vec3f_t *v) {
+AGL_INLINE void mat3f_fromdiag(mat3f_t *m, const vec3f_t *v) {
     *m = (mat3f_t){0};
     m->_m[0][0] = v->_m[0];
     m->_m[1][1] = v->_m[1];
     m->_m[2][2] = v->_m[2];
 }
 
-inline void mat3f_fromcols(mat3f_t *m, const vec3f_t *col0, const vec3f_t *col1, const vec3f_t *col2) {
+AGL_INLINE void mat3f_fromcols(mat3f_t *m, const vec3f_t *col0, const vec3f_t *col1, const vec3f_t *col2) {
 	m->_m[0][0] = col0->_m[0];
 	m->_m[0][1] = col0->_m[1];
 	m->_m[0][2] = col0->_m[2];
@@ -344,13 +364,13 @@ inline void mat3f_fromcols(mat3f_t *m, const vec3f_t *col0, const vec3f_t *col1,
 	m->_m[2][2] = col2->_m[2];
 }
 
-inline void mat3f_transpose(mat3f_t *m) {
+AGL_INLINE void mat3f_transpose(mat3f_t *m) {
     swapf(&m->_m[0][1], &m->_m[1][0]);
     swapf(&m->_m[0][2], &m->_m[2][0]);
     swapf(&m->_m[1][2], &m->_m[2][1]);
 }
 
-inline void mat3f_mul(mat3f_t *m, const mat3f_t *a, const mat3f_t *b) {
+AGL_INLINE void mat3f_mul(mat3f_t *m, const mat3f_t *a, const mat3f_t *b) {
     m->_m[0][0] = a->_m[0][0] * b->_m[0][0] + a->_m[1][0] * b->_m[0][1] + a->_m[2][0] * b->_m[0][2];
     m->_m[0][1] = a->_m[0][1] * b->_m[0][0] + a->_m[1][1] * b->_m[0][1] + a->_m[2][1] * b->_m[0][2];
     m->_m[0][2] = a->_m[0][2] * b->_m[0][0] + a->_m[1][2] * b->_m[0][1] + a->_m[2][2] * b->_m[0][2];
@@ -363,14 +383,14 @@ inline void mat3f_mul(mat3f_t *m, const mat3f_t *a, const mat3f_t *b) {
 }
 
 // v(3,1) = m(3,3) * b(3,1)
-inline void mat3f_mulvec3f(vec3f_t *v, const mat3f_t *m, const vec3f_t *b) {
+AGL_INLINE void mat3f_mulvec3f(vec3f_t *v, const mat3f_t *m, const vec3f_t *b) {
     v->_m[0] = m->_m[0][0] * b->_m[0] + m->_m[1][0] * b->_m[1] + m->_m[2][0] * b->_m[2];
     v->_m[1] = m->_m[0][1] * b->_m[0] + m->_m[1][1] * b->_m[1] + m->_m[2][1] * b->_m[2];
     v->_m[2] = m->_m[0][2] * b->_m[0] + m->_m[1][2] * b->_m[1] + m->_m[2][2] * b->_m[2];
 }
 
 // v'(1,3) = a'(1,3) * m(3,3)
-inline void vec3f_mulmat3f(vec3f_t *v, const vec3f_t *a, const mat3f_t *m) {
+AGL_INLINE void vec3f_mulmat3f(vec3f_t *v, const vec3f_t *a, const mat3f_t *m) {
     v->_m[0] = a->_m[0] * m->_m[0][0] + a->_m[1] * m->_m[0][1] + a->_m[2] * m->_m[0][2];
     v->_m[1] = a->_m[0] * m->_m[1][0] + a->_m[1] * m->_m[1][1] + a->_m[2] * m->_m[1][2];
     v->_m[2] = a->_m[0] * m->_m[2][0] + a->_m[1] * m->_m[2][1] + a->_m[2] * m->_m[2][2];
@@ -384,14 +404,14 @@ struct vec3v_t { __m128 _m; };
 struct vec4v_t { __m128 _m; };
 struct quatv_t { __m128 _m; };
 
-vec3v_t vec3v_load_aligned(const vec3f_t *f);
-vec3v_t vec3v_load_unaligned(const float *f);
-void vec3v_store_aligned(const vec3v_t *v, vec3f_t *f);
-void vec3v_store_unaligned(const vec3v_t *v, float *f);
+AGL_API vec3v_t vec3v_load_aligned(const vec3f_t *f);
+AGL_API vec3v_t vec3v_load_unaligned(const float *f);
+AGL_API void vec3v_store_aligned(const vec3v_t *v, vec3f_t *f);
+AGL_API void vec3v_store_unaligned(const vec3v_t *v, float *f);
 vec4v_t vec4v_load_aligned(const vec4f_t *f);
 vec4v_t vec4v_load_unaligned(const float *f);
-void vec4v_store_aligned(const vec4v_t *v, vec4f_t *f);
-void vec4v_store_unaligned(const vec4v_t *v, float *f);
+AGL_API void vec4v_store_aligned(const vec4v_t *v, vec4f_t *f);
+AGL_API void vec4v_store_unaligned(const vec4v_t *v, float *f);
 quatv_t quatv_load_aligned(const quatf_t *f);
 quatv_t quatv_load_unaligned(const float *f);
 void quatv_store_aligned(const quatv_t *v, quatf_t *f);

@@ -38,6 +38,18 @@
 #ifndef AGL_GFX_H
 #define AGL_GFX_H
 
+#ifndef	AGL_API
+#	if defined(_WIN32) && defined(AGL_SHARED_LIBRARY)
+#		if defined(AGL_BUILD_DLL) && !defined(AGL_PLUGIN_CLIENT)
+#			define AGL_API __declspec(dllexport)
+#		else
+#			define AGL_API __declspec(dllimport)
+#		endif
+#	else
+#		define AGL_API extern
+#	endif
+#endif // AGL_API
+
 enum { AGL_GFX_SUCCESS = 0, AGL_GFX_ERROR = -1 };
 
 typedef struct agl__gfx_context_t *agl_gfx_context_t;
@@ -229,44 +241,44 @@ typedef void (*agl_gfx_scroll_func)(agl_float sx, agl_float sy);
 /// @brief Creates a new graphics context with the specified parameters
 /// @param params Pointer to a structure containing the parameters for creating the graphics context
 /// @return A handle to the created graphics context, or NULL on failure
-agl_gfx_context_t agl_gfx_create_context(const agl_gfx_create_params_t *params);
+AGL_API agl_gfx_context_t agl_gfx_create_context(const agl_gfx_create_params_t *params);
 /// @brief Destroys a graphics context
 /// @param context The graphics context to destroy
-void agl_gfx_destroy_context(agl_gfx_context_t context);
+AGL_API void agl_gfx_destroy_context(agl_gfx_context_t context);
 /// @brief Enters the main rendering loop for the graphics context, which will continue until the context is destroyed
 /// @param context The graphics context to enter the main loop for
-void agl_gfx_main_loop(agl_gfx_context_t context);
+AGL_API void agl_gfx_main_loop(agl_gfx_context_t context);
 /// @brief Retrieves the default canvas associated with the graphics context, which can be used for rendering operations
 ///   This is the backbuffer of the window for native applicatioins, and the framebuffer for web applications.
 /// @param context The graphics context to retrieve the default canvas from
 /// @return The default canvas associated with the graphics context, or NULL if the context is invalid
-agl_gfx_canvas_t agl_gfx_get_default_canvas(agl_gfx_context_t context);
+AGL_API agl_gfx_canvas_t agl_gfx_get_default_canvas(agl_gfx_context_t context);
 /// @brief Retrieves the size of the canvas in pixels
 /// @param canvas The canvas to retrieve the size of
 /// @param width Pointer to a variable that will receive the width of the canvas in pixels
 /// @param height Pointer to a variable that will receive the height of the canvas in pixels
-void agl_gfx_get_canvas_size(agl_gfx_canvas_t canvas, agl_uint *width, agl_uint *height);
+AGL_API void agl_gfx_get_canvas_size(agl_gfx_canvas_t canvas, agl_uint *width, agl_uint *height);
 
 // Input handling
 
 /// @brief Sets the update function that will be called every frame with the time delta since the last frame
 /// @return The old update function or NULL
-agl_gfx_update_func agl_gfx_set_update_func(agl_gfx_context_t context, agl_gfx_update_func updatefn);
+AGL_API agl_gfx_update_func agl_gfx_set_update_func(agl_gfx_context_t context, agl_gfx_update_func updatefn);
 /// @brief Sets the function that will be called when a key event occurs
 /// @return The old keyboard handling function or NULL
-agl_gfx_key_func agl_gfx_set_key_func(agl_gfx_context_t context, agl_gfx_key_func keyfn);
+AGL_API agl_gfx_key_func agl_gfx_set_key_func(agl_gfx_context_t context, agl_gfx_key_func keyfn);
 /// @brief Sets the function that will be called when a mouse button event occurs
 /// @return The old mouse button handling function or NULL
-agl_gfx_mouse_button_func agl_gfx_set_mouse_button_func(agl_gfx_context_t context, agl_gfx_mouse_button_func mousefn);
+AGL_API agl_gfx_mouse_button_func agl_gfx_set_mouse_button_func(agl_gfx_context_t context, agl_gfx_mouse_button_func mousefn);
 /// @brief Sets the function that will be called when a mouse move event occurs
 /// @return The old mouse move handling function or NULL
-agl_gfx_mouse_move_func agl_gfx_set_mouse_move_func(agl_gfx_context_t context, agl_gfx_mouse_move_func movefn);
+AGL_API agl_gfx_mouse_move_func agl_gfx_set_mouse_move_func(agl_gfx_context_t context, agl_gfx_mouse_move_func movefn);
 /// @brief Sets the function that will be called when a mouse scroll event occurs
 /// @return The old mouse scroll handling function or NULL 
-agl_gfx_scroll_func agl_gfx_set_scroll_func(agl_gfx_context_t context, agl_gfx_scroll_func scrollfn);
+AGL_API agl_gfx_scroll_func agl_gfx_set_scroll_func(agl_gfx_context_t context, agl_gfx_scroll_func scrollfn);
 /// @brief Sets the function that will be called to delete user pointers associated with graphics resources
 /// @return The old user pointer deletion function or NULL
-agl_gfx_user_pointer_delete_func agl_gfx_set_user_pointer_delete_func(agl_gfx_context_t context, agl_gfx_user_pointer_delete_func deletefn);
+AGL_API agl_gfx_user_pointer_delete_func agl_gfx_set_user_pointer_delete_func(agl_gfx_context_t context, agl_gfx_user_pointer_delete_func deletefn);
 
 // Resource management
 
@@ -276,77 +288,77 @@ agl_gfx_user_pointer_delete_func agl_gfx_set_user_pointer_delete_func(agl_gfx_co
 ///   when the graphics context is destroyed or when a new user pointer is set.
 /// @param context The graphics context to associate the user pointer with
 /// @param udata The user pointer to associate with the graphics context
-void agl_gfx_set_user_pointer(agl_gfx_context_t context, void *udata);
+AGL_API void agl_gfx_set_user_pointer(agl_gfx_context_t context, void *udata);
 /// @brief Retrieves the user pointer associated with the graphics context
 /// @param context The graphics context to retrieve the user pointer from
 /// @return The user pointer associated with the graphics context, or NULL if no user pointer is set
-void* agl_gfx_get_user_pointer(agl_gfx_context_t context);
+AGL_API void* agl_gfx_get_user_pointer(agl_gfx_context_t context);
 
 /// @brief Creates a new image in the specified graphics context with the given parameters
 /// @param context The graphics context in which to create the image
 /// @param params Pointer to a structure containing the parameters for creating the image
 /// @return A handle to the created image, or NULL on failure
-agl_gfx_image_t agl_gfx_create_image(agl_gfx_context_t context, const agl_gfx_image_params_t *params);
+AGL_API agl_gfx_image_t agl_gfx_create_image(agl_gfx_context_t context, const agl_gfx_image_params_t *params);
 /// @brief Destroys an image in the specified graphics context
 /// @param context The graphics context in which the image was created
 /// @param image The image to destroy
-void agl_gfx_destroy_image(agl_gfx_context_t context, agl_gfx_image_t image);
+AGL_API void agl_gfx_destroy_image(agl_gfx_context_t context, agl_gfx_image_t image);
 
 /// @brief Creates a new buffer in the specified graphics context with the given parameters
 /// @param context The graphics context in which to create the buffer
 /// @param params Pointer to a structure containing the parameters for creating the buffer
 /// @return A handle to the created buffer, or NULL on failure
-agl_gfx_buffer_t agl_gfx_create_buffer(agl_gfx_context_t context, const agl_gfx_buffer_params_t *params);
+AGL_API agl_gfx_buffer_t agl_gfx_create_buffer(agl_gfx_context_t context, const agl_gfx_buffer_params_t *params);
 /// @brief Destroys a buffer in the specified graphics context
 /// @param context The graphics context in which the buffer was created
 /// @param buffer The buffer to destroy
-void agl_gfx_destroy_buffer(agl_gfx_context_t context, agl_gfx_buffer_t buffer);
+AGL_API void agl_gfx_destroy_buffer(agl_gfx_context_t context, agl_gfx_buffer_t buffer);
 
 /// @brief Creates a new mesh in the specified graphics context with the given parameters
 /// @param context The graphics context in which to create the mesh
 /// @param params Pointer to a structure containing the parameters for creating the mesh
 /// @return A handle to the created mesh, or NULL on failure
-agl_gfx_mesh_t agl_gfx_create_mesh(agl_gfx_context_t context, const agl_gfx_mesh_params_t *params);
+AGL_API agl_gfx_mesh_t agl_gfx_create_mesh(agl_gfx_context_t context, const agl_gfx_mesh_params_t *params);
 /// @brief Destroys a mesh in the specified graphics context
 /// @param context The graphics context in which the mesh was created
 /// @param mesh The mesh to destroy
-void agl_gfx_destroy_mesh(agl_gfx_context_t context, agl_gfx_mesh_t mesh);
+AGL_API void agl_gfx_destroy_mesh(agl_gfx_context_t context, agl_gfx_mesh_t mesh);
 
 // Camera control
 
 /// @brief Sets the position of the camera in the graphics context
 /// @param context The graphics context to set the camera position for
 /// @param pos The position of the camera as a 3D vector (x, y, z)
-void agl_gfx_set_camera_position(agl_gfx_canvas_t canvas, const agl_float3 pos);
+AGL_API void agl_gfx_set_camera_position(agl_gfx_canvas_t canvas, const agl_float3 pos);
 /// @brief Sets the camera to look at a target point in the world
 /// @param context The graphics context to set the camera orientation for
 /// @param tgt The target point in the world that the camera should look at, as a 3D vector (x, y, z)
 /// @param worldUp The camera's up direction in the world, as a 3D vector (x, y, z). This is used to determine the roll of the camera when looking at the target.
-void agl_gfx_set_camera_look_at(agl_gfx_canvas_t canvas, const agl_float3 tgt, const agl_float3 worldUp);
+AGL_API void agl_gfx_set_camera_look_at(agl_gfx_canvas_t canvas, const agl_float3 tgt, const agl_float3 worldUp);
 /// @brief Sets the orientation of the camera using a quaternion
 /// @param context The graphics context to set the camera orientation for
 /// @param quat The orientation of the camera as a quaternion (x, y, z, w)
-void agl_gfx_set_camera_orient_quat(agl_gfx_canvas_t canvas, const agl_float4 quat);
+AGL_API void agl_gfx_set_camera_orient_quat(agl_gfx_canvas_t canvas, const agl_float4 quat);
 /// @brief Sets the orientation of the camera using a rotation matrix
 /// @param context The graphics context to set the camera orientation for
 /// @param rot The orientation of the camera as a 3x3 rotation matrix, represented as an array of 3 agl_float3 vectors (right, up, forward)
-void agl_gfx_set_camera_orient_matrix(agl_gfx_canvas_t canvas, const agl_float3 rot[3]);
+AGL_API void agl_gfx_set_camera_orient_matrix(agl_gfx_canvas_t canvas, const agl_float3 rot[3]);
 /// @brief Sets the projection of the camera to a perspective projection with the specified parameters
 /// @param context The graphics context to set the camera projection for
 /// @param fovY The vertical field of view of the camera in radians
 /// @param nearZ The distance to the near clipping plane
 /// @param farZ The distance to the far clipping plane
-void agl_gfx_set_camera_perspective(agl_gfx_canvas_t canvas, agl_float fovY, agl_float nearZ, agl_float farZ);
+AGL_API void agl_gfx_set_camera_perspective(agl_gfx_canvas_t canvas, agl_float fovY, agl_float nearZ, agl_float farZ);
 
 // Rendering
 
-void agl_gfx_clear(agl_gfx_canvas_t canvas, agl_float r, agl_float g, agl_float b, agl_float a);
-void agl_gfx_draw_screen_quad(agl_gfx_canvas_t canvas, const agl_float2 pos, const agl_float2 size, agl_float angle, agl_color color, agl_gfx_image_t texture);
-void agl_gfx_draw_mesh(agl_gfx_canvas_t canvas, agl_gfx_mesh_t mesh, const agl_float3 pos, const agl_float4 rot, agl_float scale, const agl_float4 color);
-void agl_gfx_draw_text(agl_gfx_canvas_t canvas, const agl_float2 startpos, agl_float height, agl_color color, const char *text);
+AGL_API void agl_gfx_clear(agl_gfx_canvas_t canvas, agl_float r, agl_float g, agl_float b, agl_float a);
+AGL_API void agl_gfx_draw_screen_quad(agl_gfx_canvas_t canvas, const agl_float2 pos, const agl_float2 size, agl_float angle, agl_color color, agl_gfx_image_t texture);
+AGL_API void agl_gfx_draw_mesh(agl_gfx_canvas_t canvas, agl_gfx_mesh_t mesh, const agl_float3 pos, const agl_float4 rot, agl_float scale, const agl_float4 color);
+AGL_API void agl_gfx_draw_text(agl_gfx_canvas_t canvas, const agl_float2 startpos, agl_float height, agl_color color, const char *text);
 
 // Debug utilities
-void agl_gfxh_show_font_texture(agl_gfx_canvas_t canvas, const agl_float2 position);
+AGL_API void agl_gfxh_show_font_texture(agl_gfx_canvas_t canvas, const agl_float2 position);
 
 #endif // AGL_GFX_H
 

@@ -45,9 +45,9 @@
 
 #if AGL_MATH_ENABLE_ASSERTS
 #	include <stdio.h>
-#	define agl_vm_assert(cond) do { if (!(cond)) { fprintf(stderr, "Assertion failed: %s\n", #cond); __debugbreak(); } } while (0)
+#	define agl_math_assert(cond) do { if (!(cond)) { fprintf(stderr, "(%s:%d) Assertion failed: %s\n", __FILE__, __LINE__, #cond); __debugbreak(); } } while (0)
 #else
-#	define agl_vm_assert(cond)
+#	define agl_math_assert(cond)
 #endif
 
 #define isaligned16(v) ((((uintptr_t)(&(v))) & 0xF) == 0)
@@ -259,7 +259,7 @@ inline void quatf_normalize(quatf_t *q) {
 }
 
 inline void quatf_apply(vec3f_t *r, const quatf_t *q, const vec3f_t *v) {
-    agl_vm_assert(float_eq(quatf_sqrlen(q), 1.f, 1e-6f));
+    agl_math_assert(float_eq(quatf_sqrlen(q), 1.f, 1e-6f));
 	quatf_t qv = quatf(v->_m[0], v->_m[1], v->_m[2], 0.f);
 	quatf_t qinv = *q;
 	quatf_inv(&qinv);
@@ -269,7 +269,7 @@ inline void quatf_apply(vec3f_t *r, const quatf_t *q, const vec3f_t *v) {
 }
 
 inline void quatf_applyinv(vec3f_t *r, const quatf_t *q, const vec3f_t *v) {
-    agl_vm_assert(float_eq(quatf_sqrlen(q), 1.f, 1e-6f));
+    agl_math_assert(float_eq(quatf_sqrlen(q), 1.f, 1e-6f));
     quatf_t qv = quatf(v->_m[0], v->_m[1], v->_m[2], 0.f);
 	quatf_t qinv = *q;
 	quatf_inv(&qinv);
@@ -451,7 +451,7 @@ FOR_EACH_BASETYPE(LOAD_UNALIGNED_IMPL);
 #undef LOAD_UNALIGNED_IMPL
 
 #define STORE_ALIGNED_IMPL(basetype) \
-    void CONCAT(VECTOR_TYPE_BASE(basetype),_store_aligned)(const VECTOR_TYPE_FULL(basetype) *v, SCALAR_TYPE_FULL(basetype) *f) { agl_vm_assert(isaligned16(f->_m)); _mm_store_ps(f->_m, v->_m); }
+    void CONCAT(VECTOR_TYPE_BASE(basetype),_store_aligned)(const VECTOR_TYPE_FULL(basetype) *v, SCALAR_TYPE_FULL(basetype) *f) { agl_math_assert(isaligned16(f->_m)); _mm_store_ps(f->_m, v->_m); }
 
 FOR_EACH_BASETYPE(STORE_ALIGNED_IMPL);
 

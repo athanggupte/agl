@@ -141,6 +141,11 @@ void test_mat3f_fromquat() {
 	agl_math_assert(float_eq(r._m[0], 0.f, 1e-6f));
 	agl_math_assert(float_eq(r._m[1], 0.f, 1e-6f));
 	agl_math_assert(float_eq(r._m[2], -1.f, 1e-6f));
+	vec3f_t r1;
+	quatf_apply(&r1, &q, &v);
+	agl_math_assert(float_eq(r1._m[0], r._m[0], 1e-6f));
+	agl_math_assert(float_eq(r1._m[1], r._m[1], 1e-6f));
+	agl_math_assert(float_eq(r1._m[2], r._m[2], 1e-6f));
 }
 
 int main() {

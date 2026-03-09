@@ -50,6 +50,10 @@ typedef agl_float agl_float4[4];
 typedef unsigned agl_uint;
 typedef unsigned long long agl_uint64;
 typedef agl_uint agl_color;
+typedef unsigned char agl_bool;
+
+#define AGL_TRUE (1)
+#define AGL_FALSE (0)
 
 #define AGL_COLOR(r,g,b,a) (agl_uint)((agl_uint)((r)&0xFF) | ((agl_uint)((g)&0xFF)<<8) | ((agl_uint)((b)&0xFF)<<16) | ((agl_uint)((a)&0xFF)<<24))
 #define AGL_COLORF(r,g,b,a) (agl_uint)((((agl_uint)((r)*255.f))&0xFF) | ((((agl_uint)((g)*255.f))&0xFF)<<8) | ((((agl_uint)((b)*255.f))&0xFF)<<16) | ((((agl_uint)((a)*255.f))&0xFF)<<24))
@@ -692,7 +696,7 @@ typedef struct agl__FreeListNode {
         T *elem = &pool->elems[id.index - 1];                               \
         if (elem->id.id == id.id)                                           \
             return elem;                                                    \
-        agl__gfx_assertf(false, "Invalid id : %u! Resource id does not match : expected %u[%u:%u], got %u[%u:%u].", id.id, id.id, id.generation, id.index, elem->id.id, elem->id.generation, elem->id.index); \
+        agl__gfx_assertf(AGL_FALSE, "Invalid id : %u! Resource id does not match : expected %u[%u:%u], got %u[%u:%u].", id.id, id.id, id.generation, id.index, elem->id.id, elem->id.generation, elem->id.index); \
         return NULL;                                                        \
     }
 
@@ -705,7 +709,7 @@ typedef struct agl__gfx_image_t {
     agl_uint height;
     agl_gfx_image_format_t format;
     agl_uint64 handle;
-    bool isResident;
+    agl_bool isResident;
 } agl__gfx_image_t;
 
 typedef struct agl__gfx_buffer_t {
@@ -730,8 +734,8 @@ typedef struct agl__gfx_canvas_t agl__gfx_canvas_t;
 
 typedef struct agl__gfx_context_t {
     // State
-    bool wantsQuit;
-    bool running;
+    agl_bool wantsQuit;
+    agl_bool running;
     // Platform
 #if defined(_WIN32)
     HINSTANCE hinstance;
@@ -977,7 +981,7 @@ static LRESULT CALLBACK win32WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPAR
     } else if (msg == WM_CLOSE) {
         context = (agl__gfx_context_t*)GetWindowLongPtrA(hwnd, GWLP_USERDATA);
         if (context) {
-            context->wantsQuit = true;
+            context->wantsQuit = AGL_TRUE;
         }
             DestroyWindow(hwnd);
         return 0;
@@ -1078,7 +1082,7 @@ static int win32CreateContext(agl__gfx_context_t *context, const agl_gfx_create_
     wcx.hIconSm = hIconSmall;
 
     if (!RegisterClassExA(&wcx)) {
-        agl__gfx_assertf(false, "Failed to register Win32 window class");
+        agl__gfx_assertf(AGL_FALSE, "Failed to register Win32 window class");
     }
 
     PFNWGLCHOOSEPIXELFORMATARBPROC wglChoosePixelFormatARB = NULL;
@@ -1118,13 +1122,13 @@ static int win32CreateContext(agl__gfx_context_t *context, const agl_gfx_create_
         agl__gfx_assertf(pixelFormat, "Failed to choose pixel format (gdi)");
 
         if (!SetPixelFormat(fakeDC, pixelFormat, &pfd)) {
-            agl__gfx_assertf(false, "Failed to set pixel format (gdi)");
+            agl__gfx_assertf(AGL_FALSE, "Failed to set pixel format (gdi)");
         }
 
         HGLRC fakeRC = wglCreateContext(fakeDC);
         agl__gfx_assertf(fakeRC, "Failed to create render context");
         if (!wglMakeCurrent(fakeDC, fakeRC)) {
-            agl__gfx_assertf(false, "Failed to make current");
+            agl__gfx_assertf(AGL_FALSE, "Failed to make current");
         }
 
         wglChoosePixelFormatARB = (PFNWGLCHOOSEPIXELFORMATARBPROC)agl__loadProc("wglChoosePixelFormatARB");
@@ -1193,14 +1197,14 @@ static int win32CreateContext(agl__gfx_context_t *context, const agl_gfx_create_
         UINT nPixelFormats;
         int pixelFormat = 0;
         if (!wglChoosePixelFormatARB(dc, pixelAttribs, NULL, 1, &pixelFormat, &nPixelFormats)) {
-            agl__gfx_assertf(false, "Failed to choose pixel format");
+            agl__gfx_assertf(AGL_FALSE, "Failed to choose pixel format");
         }
 
         PIXELFORMATDESCRIPTOR pfd = {};
         DescribePixelFormat(dc, pixelFormat, sizeof(PIXELFORMATDESCRIPTOR), &pfd);
 
         if (!SetPixelFormat(dc, pixelFormat, &pfd)) {
-            agl__gfx_assertf(false, "Failed to set pixel format");
+            agl__gfx_assertf(AGL_FALSE, "Failed to set pixel format");
         }
 
         const int contextAttribs[] = {
@@ -1215,7 +1219,7 @@ static int win32CreateContext(agl__gfx_context_t *context, const agl_gfx_create_
         agl__gfx_assertf(rc, "Failed to create OpenGL render context");
 
         if (!wglMakeCurrent(dc, rc)) {
-            agl__gfx_assertf(false, "Failed to make current");
+            agl__gfx_assertf(AGL_FALSE, "Failed to make current");
         }
 
         context->hinstance = hInstance;
@@ -1468,7 +1472,7 @@ static void APIENTRY agl__GLDebugMessageCallback(GLenum source, GLenum type, GLu
     default: ;
     }
     if (severity != GL_DEBUG_SEVERITY_NOTIFICATION) {
-        agl__gfx_assertf(false, "[%s] GL-%u: %s", typestr, id, message);
+        agl__gfx_assertf(AGL_FALSE, "[%s] GL-%u: %s", typestr, id, message);
     } else {
         // agl__gfx_tracef("GL-%u: %s\n", id, message);
     }
@@ -1689,8 +1693,8 @@ agl_gfx_context_t agl_gfx_create_context(const agl_gfx_create_params_t *params) 
     context->canvas->context = context;
     context->canvas->width = params->width;
     context->canvas->height = params->height;
-    context->wantsQuit = false;
-    context->running = false;
+    context->wantsQuit = AGL_FALSE;
+    context->running = AGL_FALSE;
     #if _WIN32
     if (win32CreateContext(context, params)) {
         free(context);
@@ -1876,7 +1880,7 @@ agl_gfx_image_t agl_gfx_create_image(agl_gfx_context_t context, const agl_gfx_im
     image->format = params->format;
     image->handle = glGetTextureHandleARB(tex);
     glMakeTextureHandleResidentARB(image->handle);
-    image->isResident = true;
+    image->isResident = AGL_TRUE;
     return image->id;
 }
 
@@ -1885,7 +1889,7 @@ void agl_gfx_destroy_image(agl_gfx_context_t context, agl_gfx_image_t id) {
     if (!image)
         return;
     glMakeTextureHandleNonResidentARB(image->handle);
-    image->isResident = false;
+    image->isResident = AGL_FALSE;
     glDeleteTextures(1, &image->tex);
     image->tex = 0;
     agl__ImagePoolFree(&context->imagePool, image);
@@ -2022,7 +2026,7 @@ void agl_gfx_main_loop(agl_gfx_context_t context) {
     QueryPerformanceCounter(&EndTime);
 #endif // _WIN32
 
-    context->running = true;
+    context->running = AGL_TRUE;
 
     while (context->running) {
         MSG msg;
@@ -2032,7 +2036,7 @@ void agl_gfx_main_loop(agl_gfx_context_t context) {
         }
 
         if (context->wantsQuit) {
-            context->running = false;
+            context->running = AGL_FALSE;
         }
 
 #if _WIN32

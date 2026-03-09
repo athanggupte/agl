@@ -736,6 +736,7 @@ typedef struct agl__gfx_context_t {
 #if defined(_WIN32)
     HINSTANCE hinstance;
     HWND hwnd;
+    HDC hdc;
 #endif // _WIN32
     // User API
     agl_gfx_update_func updatefn;
@@ -1219,6 +1220,7 @@ static int win32CreateContext(agl__gfx_context_t *context, const agl_gfx_create_
 
         context->hinstance = hInstance;
         context->hwnd = hwnd;
+		context->hdc = dc;
     }
     ShowWindow(context->hwnd, SW_SHOW);
     return 0;
@@ -2052,7 +2054,7 @@ void agl_gfx_main_loop(agl_gfx_context_t context) {
         context->updatefn(context, dt);
         agl__FlushQuads(context->canvas);
 
-        SwapBuffers(GetDC(context->hwnd));
+        SwapBuffers(context->hdc);
     }
 }
 

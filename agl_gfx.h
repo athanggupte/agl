@@ -1764,10 +1764,13 @@ agl_gfx_context_t agl_gfx_create_context(const agl_gfx_create_params_t *params) 
     glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
     glEnable(GL_DEBUG_OUTPUT);
 #endif
-    
+    // Depth testing
+	glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
+	// Alpha blending
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	// Backface culling
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
     glFrontFace(GL_CCW);
@@ -2049,14 +2052,16 @@ static GLuint agl__SwitchProgram(agl__gfx_canvas_t *canvas, GLuint prog) {
 }
 
 static void agl__FlushQuads(agl__gfx_canvas_t *canvas) {
-    glDisable(GL_DEPTH_TEST);
-    glNamedBufferSubData(canvas->quadBuf, 0, canvas->quadsUsed * sizeof(agl__gfx_quad_t), canvas->quads);
+	if (canvas->quadsUsed == 0)
+		return;
+	glNamedBufferSubData(canvas->quadBuf, 0, canvas->quadsUsed * sizeof(agl__gfx_quad_t), canvas->quads);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, canvas->quadBuf);
     agl__SwitchProgram(canvas, canvas->quadProg);
+    glDisable(GL_DEPTH_TEST);
     glDrawArrays(GL_TRIANGLES, 0, canvas->quadsUsed * 6);
+    glEnable(GL_DEPTH_TEST);
     // agl__gfx_debugf("Flushed %u quads", canvas->quadsUsed);
     canvas->quadsUsed = 0;
-    // glEnable(GL_DEPTH_TEST);
 }
 
 void agl_gfx_main_loop(agl_gfx_context_t context) {
@@ -2091,13 +2096,13 @@ void agl_gfx_main_loop(agl_gfx_context_t context) {
 #endif // _WIN32
 
         glClearColor(0.3, 0.3, 0.3, 1.0);
-        glClearDepth(0.0);
+        glClearDepth(1.0);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glViewport(0, 0, context->canvas->width, context->canvas->height);
         glProgramUniform2f(context->canvas->quadProg, 0, context->canvas->width, context->canvas->height);
         glProgramUniform4uiv(context->canvas->quadProg, 1, 1, &context->canvas->fontGlyphWidth);
         
-        context->updatefn(context, dt);
+		context->updatefn(context, dt);
         agl__FlushQuads(context->canvas);
 
         SwapBuffers(context->hdc);

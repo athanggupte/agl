@@ -35,7 +35,7 @@ target_link_libraries(agl PUBLIC agl-gfx agl-math)
 if(UNIX)
 	target_compile_options(agl PRIVATE -fPIC)
 endif()
-target_compile_definitions(agl PRIVATE AGL_SHARED_LIBRARY AGL_BUILD_DLL AGL_GFX_CREATE_FONT_IMAGE
+target_compile_definitions(agl PRIVATE AGL_EXPORTS AGL_GFX_CREATE_FONT_IMAGE
 	$<$<BOOL:${AGL_GFX_ENABLE_ASSERTS}>:AGL_GFX_ENABLE_ASSERTS>)
 
 # Tests

@@ -39,11 +39,13 @@
 #define AGL_GFX_H
 
 #ifndef	AGL_API
-#	if defined(_WIN32) && defined(AGL_SHARED_LIBRARY)
-#		if defined(AGL_BUILD_DLL) && !defined(AGL_PLUGIN_CLIENT)
+#	if defined(_WIN32)
+#		if defined(AGL_EXPORTS)
 #			define AGL_API __declspec(dllexport)
-#		else
+#		elif defined(AGL_IMPORTS)
 #			define AGL_API __declspec(dllimport)
+#		else
+#			define AGL_API extern
 #		endif
 #	else
 #		define AGL_API extern

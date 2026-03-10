@@ -32,11 +32,13 @@
 #define AGL_MATH_H
 
 #ifndef	AGL_API
-#	if defined(_WIN32) && defined(AGL_SHARED_LIBRARY)
-#		if defined(AGL_BUILD_DLL) && !defined(AGL_PLUGIN_CLIENT)
+#	if defined(_WIN32)
+#		if defined(AGL_EXPORTS)
 #			define AGL_API __declspec(dllexport)
-#		else
+#		elif defined(AGL_IMPORTS)
 #			define AGL_API __declspec(dllimport)
+#		else
+#			define AGL_API extern
 #		endif
 #	else
 #		define AGL_API extern
@@ -44,10 +46,10 @@
 #endif // AGL_API
 
 #ifndef AGL_INLINE
-# 	if !defined(AGL_SHARED_LIBRARY)
-# 		define AGL_INLINE inline
+# 	if defined(AGL_EXPORTS) || defined(AGL_IMPORTS)
+# 		define AGL_INLINE AGL_API
 #	else
-#		define AGL_INLINE AGL_API
+#		define AGL_INLINE inline
 # 	endif
 #endif // AGL_INLINE
 

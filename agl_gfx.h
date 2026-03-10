@@ -1708,7 +1708,9 @@ static void agl__CreateGraphicsResources(agl__gfx_context_t *context) {
     glCreateBuffers(1, &quadBuf);
     glNamedBufferStorage(quadBuf, sizeof(agl__gfx_quad_t) * context->canvas->quadsTotal, NULL, GL_DYNAMIC_STORAGE_BIT);
 
+#if AGL_GFX_CREATE_FONT_IMAGE
     agl__CreateFontImage(context);
+#endif // AGL_GFX_CREATE_FONT_IMAGE
 
     context->canvas->quadProg = quadProg;
     context->canvas->quadVao = vao;

@@ -207,6 +207,7 @@ typedef enum agl_gfx_key_t {
     AGL_GFX_KEY_NUMPAD7,
     AGL_GFX_KEY_NUMPAD8,
     AGL_GFX_KEY_NUMPAD9,
+	AGL_GFX_KEY_COUNT,
 } agl_gfx_key_t;
 
 typedef enum agl_gfx_mouse_button_t {
@@ -279,6 +280,8 @@ AGL_API agl_gfx_scroll_func agl_gfx_set_scroll_func(agl_gfx_context_t context, a
 /// @brief Sets the function that will be called to delete user pointers associated with graphics resources
 /// @return The old user pointer deletion function or NULL
 AGL_API agl_gfx_user_pointer_delete_func agl_gfx_set_user_pointer_delete_func(agl_gfx_context_t context, agl_gfx_user_pointer_delete_func deletefn);
+
+AGL_API agl_bool agl_gfx_is_key_down(agl_gfx_context_t context, agl_gfx_key_t key);
 
 // Resource management
 
@@ -758,6 +761,7 @@ typedef struct agl__gfx_context_t {
     agl_gfx_mouse_button_func mousefn;
     agl_gfx_mouse_move_func movefn;
     agl_gfx_scroll_func scrollfn;
+    agl_bool keyState[AGL_GFX_KEY_COUNT];
     void *udata;
     // Drawing
     agl__gfx_canvas_t *canvas;
@@ -1048,8 +1052,10 @@ static LRESULT CALLBACK win32WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPAR
         int scancode = ((lparam >> 16) & 0xFF);
         int repeatCount = lparam & 0xFFFF;
         int extended = ((lparam >> 24) & 0x1);
+		agl_gfx_key_t key = win32ConvertKey(wparam, extended);
         if (context->keyfn)
-            context->keyfn(win32ConvertKey(wparam, extended), currState, prevState ? repeatCount : 0, scancode);
+            context->keyfn(key, currState, prevState ? repeatCount : 0, scancode);
+		context->keyState[key] = (agl_bool)currState;
         break;
     }
     default: ;
@@ -1799,6 +1805,10 @@ agl_gfx_user_pointer_delete_func agl_gfx_set_user_pointer_delete_func(agl_gfx_co
     agl_gfx_user_pointer_delete_func old = context->deletefn;
     context->deletefn = deletefn;
     return old;
+}
+
+agl_bool agl_gfx_is_key_down(agl_gfx_context_t context, agl_gfx_key_t key) {
+	return context->keyState[key] != 0;
 }
 
 agl_gfx_canvas_t agl_gfx_get_default_canvas(agl_gfx_context_t context) {

@@ -103,10 +103,10 @@ typedef struct vec4f_t vec4f_t;
 typedef struct quatf_t quatf_t;
 typedef struct mat3f_t mat3f_t;
 
-struct vec3f_t { alignas(16) float _m[4]; };
-struct vec4f_t { alignas(16) float _m[4]; };
-struct quatf_t { alignas(16) float _m[4]; };
-struct mat3f_t { alignas(16) float _m[4][3]; };
+struct vec3f_t { float _m[4]; };
+struct vec4f_t { float _m[4]; };
+struct quatf_t { float _m[4]; };
+struct mat3f_t { float _m[4][3]; };
 
 #define vec3f(x,y,z)    ((vec3f_t){(x),(y),(z),(0)})
 #define vec4f(x,y,z,w)  ((vec4f_t){(x),(y),(z),(w)})

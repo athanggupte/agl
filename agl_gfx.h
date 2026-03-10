@@ -389,7 +389,8 @@ AGL_API void agl_gfxh_show_font_texture(agl_gfx_canvas_t canvas, const agl_float
 #define MiB(x) (KiB(x) * 1024ULL)
 #define GiB(x) (MiB(x) * 1024ULL)
 
-// TODO: Make this thread local and add support for multiple temp allocators if needed. For now we can just use a single global one since the library is not thread safe anyway.
+#ifndef AGL_SCRATCH_ALLOCATOR_IMPLEMENTED
+#define AGL_SCRATCH_ALLOCATOR_IMPLEMENTED
 typedef struct agl__ScratchAllocator {
     char *beg;
     char *end;
@@ -403,6 +404,7 @@ static void* agl__ScratchAlloc(agl__ScratchAllocator *allocator, agl_uint size) 
 static void agl__ScratchFree(agl__ScratchAllocator *allocator) {
     allocator->cur = allocator->end;
 }
+#endif // AGL_SCRATCH_ALLOCATOR_IMPLEMENTED
 
 #if !defined(AGL_GFX_USE_EXTERNAL_GL_LOADER)
 #endif

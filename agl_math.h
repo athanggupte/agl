@@ -443,6 +443,9 @@ vec4v_t quatv_to_axis_angle(const quatv_t *q);
 
 #ifdef AGL_MATH_IMPLEMENTATION
 
+#ifndef AGL_MATH_IMPLEMENTED
+#define AGL_MATH_IMPLEMENTED
+
 #define XCONCAT(x,y) x##y
 #define CONCAT(x,y) XCONCAT(x,y)
 
@@ -514,5 +517,7 @@ void quatv_conjugate(const quatv_t *q, quatv_t *qc) {
 }
 
 #undef STORE_UNALIGNED_IMPL
+
+#endif // AGL_MATH_IMPLEMENTED
 
 #endif // AGL_MATH_IMPLEMENTATION

@@ -1724,8 +1724,16 @@ agl_gfx_context_t agl_gfx_create_context(const agl_gfx_create_params_t *params) 
     }
     #endif // _WIN32
     // initialize temp allocator
-    context->scratchAllocator.beg = params->scratchMemory.allocationBase;
-    context->scratchAllocator.end = context->scratchAllocator.beg + params->scratchMemory.allocationSize;
+	void *scratchBase = params->scratchMemory.allocationBase;
+	size_t scratchSize = params->scratchMemory.allocationSize;
+	if (scratchBase == NULL) {
+		if (scratchSize == 0) {
+			scratchSize = 512 * 1024; // default to 512 KiB
+		}
+		scratchBase = malloc(scratchSize);
+	}
+    context->scratchAllocator.beg = scratchBase;
+    context->scratchAllocator.end = context->scratchAllocator.beg + scratchSize;
     context->scratchAllocator.cur = context->scratchAllocator.end;
 
     agl_uint imagePoolSize = params->imagePoolSize == 0 ? 1024 : params->imagePoolSize;

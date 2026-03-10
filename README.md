@@ -6,3 +6,4 @@ AGL (Athang’s Game Libraries) is a collection of minimal, dependency-light C l
 - [agl_gfx.h](./agl_gfx.h) - window management, user input, 2d and 3d renderer 
 - [agl_math.h](./agl_math.h) - vectors, quaternions, matrices
 - [agl_phys.h](./agl_phys.h) - particles, rigid bodies, articulated joints
+- [agl_plugin.h](./agl_plugin.h) - dynamic linked plugins with managed life cycle

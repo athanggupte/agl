@@ -1672,8 +1672,12 @@ static const char *mesh_shader_source_frag = "#version 450 core""\n"
     "} fs_in;"
     "layout (location = 4) uniform vec4 TintColor;"
     "layout (location = 0) out vec4 FragColor;"
+	"const vec3 lightDir = normalize(vec3(1,1,1));"
     "void main() {"
-        "FragColor = TintColor * vec4(fs_in.color);"
+		"vec3 L = lightDir;"
+		"vec3 N = normalize(fs_in.normal);"
+		"float NdotL = max(dot(N, L), 0.0);"
+        "FragColor = vec4(TintColor.rgb, 1.0) * vec4(vec3(NdotL), 1.0);"
     "}";
 
 static GLuint agl__CreateShaderProgram(const char *vertSource, const char *fragSource) {

@@ -618,6 +618,7 @@ typedef void (APIENTRY *PFNGLOBJECTLABELPROC) (GLenum identifier, GLuint name, G
 // WGL types
 typedef BOOL (WINAPI * PFNWGLCHOOSEPIXELFORMATARBPROC) (HDC hdc, const int *piAttribIList, const FLOAT *pfAttribFList, UINT nMaxFormats, int *piFormats, UINT *nNumFormats);
 typedef HGLRC (WINAPI * PFNWGLCREATECONTEXTATTRIBSARBPROC) (HDC hDC, HGLRC hShareContext, const int *attribList);
+typedef BOOL (WINAPI * PFNWGLSWAPINTERVALEXTPROC) (int interval);
 // WGL constants
 #define WGL_DRAW_TO_WINDOW_ARB            0x2001
 #define WGL_ACCELERATION_ARB              0x2003
@@ -633,6 +634,7 @@ typedef HGLRC (WINAPI * PFNWGLCREATECONTEXTATTRIBSARBPROC) (HDC hDC, HGLRC hShar
 #define WGL_DEPTH_BITS_ARB                0x2022
 #define WGL_STENCIL_BITS_ARB              0x2023
 #define WGL_FULL_ACCELERATION_ARB         0x2027
+#define WGL_SWAP_EXCHANGE_ARB             0x2028
 #define WGL_SWAP_COPY_ARB                 0x2029
 #define WGL_TYPE_RGBA_ARB                 0x202B
 #define WGL_SAMPLE_BUFFERS_ARB            0x2041
@@ -1111,6 +1113,7 @@ static int win32CreateContext(agl__gfx_context_t *context, const agl_gfx_create_
 
     PFNWGLCHOOSEPIXELFORMATARBPROC wglChoosePixelFormatARB = NULL;
     PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARB = NULL;
+	PFNWGLSWAPINTERVALEXTPROC wglSwapIntervalEXT = NULL;
     // Fake OpenGL initialization for retrieving wgl context params
     {
         HWND hwnd = CreateWindowExA(
@@ -1157,6 +1160,7 @@ static int win32CreateContext(agl__gfx_context_t *context, const agl_gfx_create_
 
         wglChoosePixelFormatARB = (PFNWGLCHOOSEPIXELFORMATARBPROC)agl__loadProc("wglChoosePixelFormatARB");
         wglCreateContextAttribsARB = (PFNWGLCREATECONTEXTATTRIBSARBPROC)agl__loadProc("wglCreateContextAttribsARB");
+        wglSwapIntervalEXT = (PFNWGLSWAPINTERVALEXTPROC)agl__loadProc("wglSwapIntervalEXT");
 
         agl__gfx_assertf(wglChoosePixelFormatARB && wglCreateContextAttribsARB, "Failed to load WGL functions");
 
@@ -1204,7 +1208,7 @@ static int win32CreateContext(agl__gfx_context_t *context, const agl_gfx_create_
             WGL_DRAW_TO_WINDOW_ARB,     GL_TRUE,
             WGL_SUPPORT_OPENGL_ARB,     GL_TRUE,
             WGL_DOUBLE_BUFFER_ARB,      GL_TRUE,
-            WGL_SWAP_METHOD_ARB,        WGL_SWAP_COPY_ARB,
+            WGL_SWAP_METHOD_ARB,        WGL_SWAP_EXCHANGE_ARB,
             WGL_PIXEL_TYPE_ARB,         WGL_TYPE_RGBA_ARB,
             WGL_ACCELERATION_ARB,       WGL_FULL_ACCELERATION_ARB,
             WGL_COLOR_BITS_ARB,         32,
@@ -1233,7 +1237,7 @@ static int win32CreateContext(agl__gfx_context_t *context, const agl_gfx_create_
 
         const int contextAttribs[] = {
             WGL_CONTEXT_MAJOR_VERSION_ARB,  4,
-            WGL_CONTEXT_MINOR_VERSION_ARB,  5,
+            WGL_CONTEXT_MINOR_VERSION_ARB,  6,
             WGL_CONTEXT_PROFILE_MASK_ARB,   WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
             WGL_CONTEXT_FLAGS_ARB,          WGL_CONTEXT_DEBUG_BIT_ARB,
             0,
@@ -1245,6 +1249,8 @@ static int win32CreateContext(agl__gfx_context_t *context, const agl_gfx_create_
         if (!wglMakeCurrent(dc, rc)) {
             agl__gfx_assertf(AGL_FALSE, "Failed to make current");
         }
+
+		wglSwapIntervalEXT(0);
 
         context->hinstance = hInstance;
         context->hwnd = hwnd;

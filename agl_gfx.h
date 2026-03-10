@@ -2236,6 +2236,9 @@ static void agl__MakeTransformMatrix(agl_float4 mat[4], const agl_float3 pos, co
 	mat[1][2] = 2*q2*q3 + 2*q0*q1;
 	mat[2][2] = 1 - 2*q1*q1 - 2*q2*q2;
     for (int i = 0; i < 3; i++) {
+		mat[0][i] *= scale;
+		mat[1][i] *= scale;
+		mat[2][i] *= scale;
         mat[3][i] = pos[i];
     }
     mat[3][3] = 1.f;

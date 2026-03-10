@@ -274,10 +274,12 @@ AGL_INLINE float quatf_len(const quatf_t *q) {
 
 AGL_INLINE void quatf_normalize(quatf_t *q) {
     float norm = quatf_len(q);
-    q->_m[0] /= norm;
-    q->_m[1] /= norm;
-    q->_m[2] /= norm;
-    q->_m[3] /= norm;
+	if (norm > 0.f) {
+		q->_m[0] /= norm;
+		q->_m[1] /= norm;
+		q->_m[2] /= norm;
+		q->_m[3] /= norm;
+	}
 }
 
 AGL_INLINE void quatf_apply(vec3f_t *r, const quatf_t *q, const vec3f_t *v) {

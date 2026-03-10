@@ -6,6 +6,8 @@ project(agl_tests
 
 enable_testing()
 
+include(agl.cmake)
+
 # Header-only libraries
 add_library(agl-gfx INTERFACE)
 target_include_directories(agl-gfx INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})

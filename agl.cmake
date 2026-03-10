@@ -1,0 +1,8 @@
+macro(add_agl_plugin)
+	add_library(${ARGV0} SHARED ${ARGV1})
+	target_link_libraries(${ARGV0} PRIVATE agl)
+	if(UNIX)
+		target_compile_options(${ARGV0} PRIVATE -fPIC)
+	endif()
+	target_compile_definitions(${ARGV0} PRIVATE AGL_IMPORTS AGL_PLUGIN_EXPORTS)
+endmacro(add_agl_plugin)

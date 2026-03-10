@@ -367,9 +367,11 @@ AGL_API void agl_gfxh_show_font_texture(agl_gfx_canvas_t canvas, const agl_float
 #ifndef AGL_GFX_IMPLEMENTED
 #define AGL_GFX_IMPLEMENTED
 
+#define _CRT_SECURE_NO_WARNINGS
 #include <stdlib.h>
 #include <stdint.h>
-#include <stdbool.h>
+#define _USE_MATH_DEFINES
+#include <math.h>
 
 #if AGL_GFX_ENABLE_ASSERTS
 #include <stdio.h>

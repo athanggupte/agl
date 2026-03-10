@@ -231,6 +231,23 @@ typedef enum agl_gfx_mod_key_t {
     AGL_GFX_MOD_CONTROL = 0x02,
 } agl_gfx_mod_key_t;
 
+typedef struct agl_gfx_loader_t agl_gfx_loader_t;
+typedef struct agl_gfx_load_params_t agl_gfx_load_params_t;
+typedef void (*agl_gfx_loader_mesh_callback_func)(agl_gfx_context_t context, const agl_gfx_mesh_params_t *params, const char *name);
+typedef void (*agl_gfx_loader_image_callback_func)(agl_gfx_context_t context, const agl_gfx_image_params_t *params, const char *name);
+typedef int (*agl_gfx_loader_load_func)(agl_gfx_context_t context, const char* path, agl_gfx_load_params_t *params);
+
+struct agl_gfx_loader_t {
+	const char *exts; // semicolon-separated list of supported extensions (e.g. "gltf;glb")
+	agl_gfx_loader_load_func load;
+	unsigned char reserved[8];
+};
+
+struct agl_gfx_load_params_t {
+	agl_gfx_loader_mesh_callback_func meshCallback;
+	agl_gfx_loader_image_callback_func imageCallback;
+};
+
 typedef agl_float agl_gfx_time_t;
 typedef void (*agl_gfx_update_func)(agl_gfx_context_t context, agl_gfx_time_t deltaTime);
 typedef void (*agl_gfx_user_pointer_delete_func)(void *udata);
@@ -361,6 +378,12 @@ AGL_API void agl_gfx_clear(agl_gfx_canvas_t canvas, agl_float r, agl_float g, ag
 AGL_API void agl_gfx_draw_screen_quad(agl_gfx_canvas_t canvas, const agl_float2 pos, const agl_float2 size, agl_float angle, agl_color color, agl_gfx_image_t texture);
 AGL_API void agl_gfx_draw_mesh(agl_gfx_canvas_t canvas, agl_gfx_mesh_t mesh, const agl_float3 pos, const agl_float4 rot, agl_float scale, const agl_float4 color);
 AGL_API void agl_gfx_draw_text(agl_gfx_canvas_t canvas, const agl_float2 startpos, agl_float height, agl_color color, const char *text);
+
+// Loader
+
+AGL_API void agl_gfx_register_loader(agl_gfx_context_t context, agl_gfx_loader_t *loader);
+// AGL_API agl_gfx_loader_t* agl_gfx_find_loader(const char *ext);
+AGL_API int agl_gfx_load_file(agl_gfx_context_t context, const char *path, agl_gfx_load_params_t *params);
 
 // Debug utilities
 AGL_API void agl_gfxh_show_font_texture(agl_gfx_canvas_t canvas, const agl_float2 position);
@@ -742,6 +765,14 @@ typedef struct agl__gfx_mesh_t {
     agl_uint indexCount;
 } agl__gfx_mesh_t;
 
+typedef struct agl__gfx_loader_t {
+	const char *exts; // semicolon-separated list of supported extensions (e.g. "gltf;glb")
+	agl_gfx_loader_load_func load;
+	struct agl__gfx_loader_t *next;
+} agl__gfx_loader_t;
+
+_STATIC_ASSERT(sizeof(agl__gfx_loader_t) == sizeof(agl_gfx_loader_t));
+
 DEFINE_POOL(agl__gfx_image_t, agl__ImagePool);
 DEFINE_POOL(agl__gfx_buffer_t, agl__BufferPool);
 DEFINE_POOL(agl__gfx_mesh_t, agl__MeshPool);
@@ -774,6 +805,8 @@ typedef struct agl__gfx_context_t {
     agl__BufferPool bufferPool;
     agl__MeshPool meshPool;
     agl__ScratchAllocator scratchAllocator;
+	// Loaders
+	agl__gfx_loader_t *firstLoader;
 } agl__gfx_context_t;
 
 typedef struct agl__gfx_quad_t {
@@ -2391,6 +2424,41 @@ void agl_gfx_draw_text(agl_gfx_canvas_t canvas, const agl_float2 startpos, agl_f
     }
 }
 
+void agl_gfx_register_loader(agl_gfx_context_t context, agl_gfx_loader_t *loader) {
+	agl__gfx_loader_t *_loader = (agl__gfx_loader_t*)loader;
+	_loader->next = context->firstLoader;
+	context->firstLoader = _loader;
+}
+
+int agl_gfx_load_file(agl_gfx_context_t context, const char *path, agl_gfx_load_params_t *params) {
+	const char *ext = strrchr(path, '.');
+	size_t extLen = strlen(ext);
+	if (!ext) {
+		printf("File has no extension: %s\n", path);
+		return 0;
+	}
+	agl__gfx_loader_t *loader = context->firstLoader;
+	while (loader) {
+		const char *exts = loader->exts;
+		const char *extEnd = strchr(exts, ';');
+		while (extEnd) {
+			size_t len = extEnd - exts;
+			printf("Checking loader for extension (%s): %.*s\n", ext, (int)len, exts);
+			if (_strnicmp(ext, exts, len > extLen ? len : extLen) == 0) {
+				return loader->load(context, path, params);
+			}
+			exts = extEnd + 1;
+			extEnd = strchr(exts, ';');
+		}
+		if (_stricmp(ext, exts) == 0) {
+			printf("Checking loader for extension (%s): %s\n", ext, exts);
+			return loader->load(context, path, params);
+		}
+		loader = loader->next;
+	}
+	printf("No loader found for file: %s\n", path);
+	return 0;
+}
 
 #define AGL_FONT_GLYPH_BITMAP_TYPE uint32_t
 #define AGL_FONT_ATLAS_MAXCOLS 16

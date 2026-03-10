@@ -47,3 +47,5 @@ target_link_libraries(gfx-test agl-gfx)
 add_executable(math-test agl_math.h tests/math_test.c)
 target_link_libraries(math-test agl-math)
 
+# Plugins
+add_agl_plugin(fps_counter plugins/fps_counter.c)

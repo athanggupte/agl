@@ -49,3 +49,6 @@ target_link_libraries(math-test agl-math)
 
 # Plugins
 add_agl_plugin(fps_counter plugins/fps_counter.c)
+
+add_agl_plugin(gltf_loader plugins/gltf_loader.cpp)
+target_include_directories(gltf_loader PRIVATE deps)
